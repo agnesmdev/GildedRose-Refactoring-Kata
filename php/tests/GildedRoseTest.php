@@ -14,5 +14,8 @@ class GildedRoseTest extends TestCase
         $gildedRose = new GildedRose($items);
         $gildedRose->updateQuality();
         $this->assertSame('foo', $items[0]->name);
+        $this->assertSame(-1, $items[0]->sell_in);
+        // quality never goes negative
+        $this->assertSame(0, $items[0]->quality);
     }
 }
