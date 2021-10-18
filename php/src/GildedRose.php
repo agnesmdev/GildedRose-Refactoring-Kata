@@ -13,6 +13,7 @@ final class GildedRose
     private $agedBrie = 'Aged Brie';
     private $backstagePasses = 'Backstage passes to a TAFKAL80ETC concert';
     private $sulfuras = 'Sulfuras, Hand of Ragnaros';
+    private $conjured = 'Conjured';
 
     public function __construct(array $items)
     {
@@ -33,6 +34,10 @@ final class GildedRose
                     break;
                 case $this->sulfuras:
                     break;
+                case $this->conjured:
+                    $item->quality = $this->qualityDegrade($item, 2);
+                    $item->sell_in = $item->sell_in - 1;
+                    break;
                 default:
                     $item->quality = $this->qualityDegrade($item);
                     $item->sell_in = $item->sell_in - 1;
@@ -45,9 +50,9 @@ final class GildedRose
         return min(50, $quality + $upgrade);
     }
 
-    private function qualityDegrade(Item $item): int
+    private function qualityDegrade(Item $item, int $ratio = 1): int
     {
-        return ($item->quality == 0) ? 0 : $item->quality - $this->qualityDegradeValue($item->sell_in);
+        return ($item->quality == 0) ? 0 : $item->quality - $ratio * $this->qualityDegradeValue($item->sell_in);
     }
 
     private function qualityDegradeValue(int $sell_in): int
