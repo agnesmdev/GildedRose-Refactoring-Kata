@@ -22,51 +22,50 @@ final class GildedRose
     public function updateQuality(): void
     {
         foreach ($this->items as $item) {
-            if ($item->name != $this->agedBrie and $item->name != $this->backstagePasses) {
-                if ($item->quality > 0) {
-                    if ($item->name != $this->sulfuras) {
-                        $item->quality = $item->quality - 1;
-                    }
-                }
-            } else {
-                if ($item->quality < 50) {
-                    $item->quality = $item->quality + 1;
-                    if ($item->name == $this->backstagePasses) {
-                        if ($item->sell_in < 11) {
-                            if ($item->quality < 50) {
-                                $item->quality = $item->quality + 1;
-                            }
-                        }
-                        if ($item->sell_in < 6) {
-                            if ($item->quality < 50) {
-                                $item->quality = $item->quality + 1;
-                            }
-                        }
-                    }
-                }
+            switch ($item->name) {
+                case $this->agedBrie:
+                    $item->quality = $this->qualityUpgrade($item->quality, $this->qualityDegradeValue($item->sell_in));
+                    $item->sell_in = $item->sell_in - 1;
+                    break;
+                case $this->backstagePasses:
+                    $item->quality = $this->computePassesQuality($item);
+                    $item->sell_in = $item->sell_in - 1;
+                    break;
+                case $this->sulfuras:
+                    break;
+                default:
+                    $item->quality = $this->qualityDegrade($item);
+                    $item->sell_in = $item->sell_in - 1;
             }
+        }
+    }
 
-            if ($item->name != $this->sulfuras) {
-                $item->sell_in = $item->sell_in - 1;
-            }
+    private function qualityUpgrade(int $quality, int $upgrade = 1): int
+    {
+        return min(50, $quality + $upgrade);
+    }
 
-            if ($item->sell_in < 0) {
-                if ($item->name != $this->agedBrie) {
-                    if ($item->name != $this->backstagePasses) {
-                        if ($item->quality > 0) {
-                            if ($item->name != $this->sulfuras) {
-                                $item->quality = $item->quality - 1;
-                            }
-                        }
-                    } else {
-                        $item->quality = $item->quality - $item->quality;
-                    }
-                } else {
-                    if ($item->quality < 50) {
-                        $item->quality = $item->quality + 1;
-                    }
-                }
-            }
+    private function qualityDegrade(Item $item): int
+    {
+        return ($item->quality == 0) ? 0 : $item->quality - $this->qualityDegradeValue($item->sell_in);
+    }
+
+    private function qualityDegradeValue(int $sell_in): int
+    {
+        return ($sell_in > 0) ? 1 : 2;
+    }
+
+    private function computePassesQuality(Item $item): int
+    {
+        switch($item->sell_in) {
+            case $item->sell_in <= 0:
+                return 0;
+            case $item->sell_in <= 5:
+                return $this->qualityUpgrade($item->quality, 3);
+            case $item->sell_in <= 10:
+                return $this->qualityUpgrade($item->quality, 2);
+            default:
+                return $this->qualityUpgrade($item->quality);
         }
     }
 }
