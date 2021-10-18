@@ -91,4 +91,74 @@ class GildedRoseTest extends TestCase
         $this->assertSame(-1, $items[0]->sell_in);
         $this->assertSame(50, $items[0]->quality);
     }
+
+    public function testSulfuras(): void
+    {
+        // given
+        $items = [new Item('Sulfuras, Hand of Ragnaros', 1, 1)];
+        $gildedRose = new GildedRose($items);
+
+        // when
+        $gildedRose->updateQuality();
+
+        // then
+        $this->assertSame(1, $items[0]->sell_in);
+        $this->assertSame(1, $items[0]->quality);
+    }
+
+    public function testBackstagePasses(): void
+    {
+        // given
+        $items = [new Item('Backstage passes to a TAFKAL80ETC concert', 20, 1)];
+        $gildedRose = new GildedRose($items);
+
+        // when
+        $gildedRose->updateQuality();
+
+        // then
+        $this->assertSame(19, $items[0]->sell_in);
+        $this->assertSame(2, $items[0]->quality);
+    }
+
+    public function testBackstagePasses10dLeft(): void
+    {
+        // given
+        $items = [new Item('Backstage passes to a TAFKAL80ETC concert', 10, 1)];
+        $gildedRose = new GildedRose($items);
+
+        // when
+        $gildedRose->updateQuality();
+
+        // then
+        $this->assertSame(9, $items[0]->sell_in);
+        $this->assertSame(3, $items[0]->quality);
+    }
+
+    public function testBackstagePasses5dLeft(): void
+    {
+        // given
+        $items = [new Item('Backstage passes to a TAFKAL80ETC concert', 5, 1)];
+        $gildedRose = new GildedRose($items);
+
+        // when
+        $gildedRose->updateQuality();
+
+        // then
+        $this->assertSame(4, $items[0]->sell_in);
+        $this->assertSame(4, $items[0]->quality);
+    }
+
+    public function testBackstagePassesAfterConcert(): void
+    {
+        // given
+        $items = [new Item('Backstage passes to a TAFKAL80ETC concert', -1, 10)];
+        $gildedRose = new GildedRose($items);
+
+        // when
+        $gildedRose->updateQuality();
+
+        // then
+        $this->assertSame(-2, $items[0]->sell_in);
+        $this->assertSame(0, $items[0]->quality);
+    }
 }
